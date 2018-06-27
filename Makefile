@@ -1,2 +1,2 @@
 test:
-	watchmedo shell-command --command="run-contexts -s src" -R -W src
+	watchmedo shell-command --command="run-contexts src" -R -W src

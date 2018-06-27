@@ -35,10 +35,7 @@ _prohibited = (
 _special = ("__module__", "__name__", "__qualname__", "__annotations__")
 
 
-def parse_bool(name, prefix, env):
-
-    var = (prefix + name).upper()
-    val = env.get(var)
+def bool_from_str(val):
 
     if val is None or val.isspace():
         return False
@@ -76,14 +73,20 @@ def parse_str(name, prefix, env):
 
 
 def parse_float(name, prefix, env):
-    var = (prefix + name).upper()
-    if var not in env:
-        return
-    val = env[var]
     return float(val)
 
 
-_READERS = {int: parse_int, float: parse_float, str: parse_str, bool: parse_bool}
+def parse_if_present(f):
+    def p(name, prefix, env, args):
+        var = (prefix + name).upper()
+        if var not in env:
+            return
+        val = env[var]
+        args[name] = f(val)
+    return p
+
+
+_READERS = {int: parse_if_present(int), float: parse_if_present(float), str: parse_if_present(str), bool: parse_if_present(bool_from_str)}
 
 
 @classmethod
@@ -99,21 +102,22 @@ def build(cls, env=None, prefix=""):
         if inspect.isclass(reader):
             if hasattr(reader, "build"):
                 val = reader.build(env=env, prefix=(name.upper() + "_" + prefix))
+                if val is not None:
+                    args[name] = val
         else:
             try:
-                val = reader(name, prefix, env)
+                val = reader(name, prefix, env, args)
             except ValueError as e:
                 raise ValueError(
                     f"Error parsing '{name}' property of '{cls.__inner_type.__name__}':\n"
                     + str(e)
                 )
 
-        if val is not None:
-            args[name] = val
-
+    print(cls)
     for k in cls.__fields.keys():
+        print(k)
         if k not in args:
-            raise KeyError()
+            raise KeyError(k)
 
     return cls.__inner_type(**args)
 
