@@ -7,18 +7,21 @@ Dozen is a simple, declarative library for mapping environment variables to conf
 
     >>> import dozen
     >>> import os
-    >>> 
+    >>>
+    >>> # Given some variables in the environment 
     >>> os.environ.update({
     >>>     'USE_ENVIRONMENT': 'true',
     >>>     'SOME_STRING': 'my value',
     >>>     'PORT': '2345'
     >>> })
     >>>
+    >>> # ... and a template for our config
     >>> class MyConfig(dozen.Template):
     >>>     use_environment: bool
     >>>     some_string: str
     >>>     port: int
-
+    >>>
+    >>> # dozen returns populated instances of our template from env vars
     >>> cfg = MyConfig.build()
     >>> assert cfg.use_environment is True
     >>> assert cfg.some_string == 'my value'
