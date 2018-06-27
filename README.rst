@@ -8,7 +8,7 @@ Dozen is a simple, declarative library for mapping environment variables to conf
     >>> import dozen
     >>> import os
     >>>
-    >>> # Given some variables in the environment 
+    >>> # Given some variables in the environment
     >>> os.environ.update({
     >>>     'USE_ENVIRONMENT': 'true',
     >>>     'SOME_STRING': 'my value',
@@ -26,4 +26,19 @@ Dozen is a simple, declarative library for mapping environment variables to conf
     >>> assert cfg.use_environment is True
     >>> assert cfg.some_string == 'my value'
     >>> assert cfg.port == 2345
+
+Sometimes we want to treat a value as optional, and give it a default value.
+
+    >>> os.environ.clear()
+    >>>
+    >>> class DefaultConfig(dozen.Template):
+    >>>     use_environment: bool = True
+    >>>     some_string: str = "cheese"
+    >>>     port: int = 73
+    >>>
+    >>> cfg = DefaultConfig.build(env=dict())
+    >>> assert cfg.use_environment is True
+    >>> assert cfg.some_string == 'cheese'
+    >>> assert cfg.port == 73
+
 
