@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"./src" = "*"
+"b7287bc" = {path = "./src", editable = true}
+watchdog = "*"
+
+[dev-packages]
+black = "==18.6b4"
+neovim = "*"
+"zest.releaser" = {extras = ["recommended"]}
+setuptools-git = "*"
+contexts = "*"
+expects = "*"
+
+[requires]
+python_version = "3.6"
