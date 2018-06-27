@@ -55,27 +55,6 @@ def bool_from_str(val):
     return True
 
 
-def parse_int(name, prefix, env):
-    var = (prefix + name).upper()
-    if var not in env:
-        return
-    val = env[var]
-
-    return int(val)
-
-
-def parse_str(name, prefix, env):
-    var = (prefix + name).upper()
-    if var not in env:
-        return
-    val = env[var]
-    return env[var]
-
-
-def parse_float(name, prefix, env):
-    return float(val)
-
-
 def parse_if_present(f):
     def p(name, prefix, env, args):
         var = (prefix + name).upper()
@@ -83,10 +62,16 @@ def parse_if_present(f):
             return
         val = env[var]
         args[name] = f(val)
+
     return p
 
 
-_READERS = {int: parse_if_present(int), float: parse_if_present(float), str: parse_if_present(str), bool: parse_if_present(bool_from_str)}
+_READERS = {
+    int: parse_if_present(int),
+    float: parse_if_present(float),
+    str: parse_if_present(str),
+    bool: parse_if_present(bool_from_str),
+}
 
 
 @classmethod
@@ -98,12 +83,13 @@ def build(cls, env=None, prefix=""):
     args = {}
 
     for name, reader in cls.__fields.items():
-        val = None
-        if inspect.isclass(reader):
-            if hasattr(reader, "build"):
-                val = reader.build(env=env, prefix=(name.upper() + "_" + prefix))
-                if val is not None:
-                    args[name] = val
+
+        # I really want to be able to say "If this is a nested template"
+        if hasattr(reader, "build"):
+            val = reader.build(env=env, prefix=(name.upper() + "_" + prefix))
+            if val is not None:
+                args[name] = val
+
         else:
             try:
                 val = reader(name, prefix, env, args)
@@ -113,9 +99,7 @@ def build(cls, env=None, prefix=""):
                     + str(e)
                 )
 
-    print(cls)
     for k in cls.__fields.keys():
-        print(k)
         if k not in args:
             raise KeyError(k)
 
