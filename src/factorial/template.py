@@ -101,7 +101,10 @@ def build(cls, env=None, prefix=""):
 
     for k in cls.__fields.keys():
         if k not in args:
-            raise KeyError(k)
+            if k in cls.__defaults:
+                args[k] = cls.__defaults[k]
+            else:
+                raise KeyError(k)
 
     return cls.__inner_type(**args)
 
@@ -113,12 +116,19 @@ class TemplateMeta(type):
         types = ns.get("__annotations__", {})
 
         inner_type = _make_nmtuple(typename, types.items())
+        defaults_dict = {}
 
+        for field_name in types:
+            if field_name in ns:
+                default_value = ns[field_name]
+                defaults_dict[field_name] = default_value
+ 
         ns["build"] = build
         ns["__inner_type"] = inner_type
 
         fields = {}
         ns["__fields"] = dict([(n, _READERS.get(t) or t) for n, t in types.items()])
+        ns["__defaults"] = defaults_dict
         result = type(typename, (object,), ns)
 
         return result

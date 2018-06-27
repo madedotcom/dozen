@@ -99,8 +99,36 @@ class When_building_nested_configuration_objects:
 
 
 class When_keys_are_missing:
-    def given_an_environment(self):
-        self.env = {"SIZE": "7", "MY_BOOL": "0", "SOME_STR": "carbonara"}
+
+    ALL_VARS = {"SIZE": "7", "MY_BOOL": "0", "SOME_STR": "carbonara"}
+
+    @classmethod
+    def examples(cls):
+        return cls.ALL_VARS.keys()
+
+    def given_an_environment(self, k):
+        self.env = self.ALL_VARS.copy()
+        del self.env[k]
 
     def it_should_raise_key_error(self):
         expect(lambda: simple_template.build(env=self.env)).to(raise_error(KeyError))
+
+
+class template_with_default(factorial.Template):
+    size: int = 5
+    my_bool: bool = True
+    some_str: str = "foo"
+    bigness: float = 0.1
+
+
+class When_a_field_has_a_default_value:
+
+    def because_we_build_the_config_with_no_env(self):
+        self.cfg = template_with_default.build(env={})
+
+    def it_should_apply_the_defaults(self):
+        expect(self.cfg.size).to(equal(5))
+        expect(self.cfg.my_bool).to(be_true)
+        expect(self.cfg.some_str).to(equal("foo"))
+        expect(self.cfg.bigness).to(equal(0.1))
+
