@@ -123,12 +123,13 @@ class template_with_default(dozen.Template):
 
 class When_a_field_has_a_default_value:
 
-    def because_we_build_the_config_with_no_env(self):
+    def because_we_build_the_config(self):
         self.cfg = template_with_default.build(env={'SIZE': 10})
 
     def it_should_apply_the_defaults(self):
-        expect(self.cfg.size).to(equal(5))
         expect(self.cfg.my_bool).to(be_true)
         expect(self.cfg.some_str).to(equal("foo"))
         expect(self.cfg.bigness).to(equal(0.1))
 
+    def it_should_override_default_with_env(self):
+        expect(self.cfg.size).to(equal(10))
