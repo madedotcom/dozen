@@ -1,6 +1,7 @@
 import collections
 import inspect
 import sys
+import os
 
 
 def _make_nmtuple(name, types):
@@ -79,6 +80,9 @@ def build(cls, env=None, prefix=""):
 
     if prefix and not prefix.endswith("_"):
         prefix += "_"
+
+    if env == None:
+        env = os.environ
 
     args = {}
 
