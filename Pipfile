@@ -6,7 +6,10 @@ name = "pypi"
 [packages]
 "./src" = "*"
 "b7287bc" = {path = "./src", editable = true}
+pytest-watch = "*"
 watchdog = "*"
+expects = "*"
+pytest-contexts = "*"
 
 [dev-packages]
 black = "==18.6b4"

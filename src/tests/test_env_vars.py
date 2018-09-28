@@ -1,15 +1,15 @@
-import factorial
+import dozen
 from expects import expect, equal, be_false, be_a, be_true, raise_error
 
 
-class simple_template(factorial.Template):
+class simple_template(dozen.Template):
     size: int
     my_bool: bool
     some_str: str
     bigness: float
 
 
-class nested_template(factorial.Template):
+class nested_template(dozen.Template):
     force: bool
     stuff: simple_template
 
@@ -114,7 +114,7 @@ class When_keys_are_missing:
         expect(lambda: simple_template.build(env=self.env)).to(raise_error(KeyError))
 
 
-class template_with_default(factorial.Template):
+class template_with_default(dozen.Template):
     size: int = 5
     my_bool: bool = True
     some_str: str = "foo"
@@ -124,7 +124,7 @@ class template_with_default(factorial.Template):
 class When_a_field_has_a_default_value:
 
     def because_we_build_the_config_with_no_env(self):
-        self.cfg = template_with_default.build(env={})
+        self.cfg = template_with_default.build(env={'SIZE': 10})
 
     def it_should_apply_the_defaults(self):
         expect(self.cfg.size).to(equal(5))
