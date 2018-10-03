@@ -10,6 +10,6 @@ setup(
     install_requires=[],
     author="Bob Gregory",
     author_email="bob@made.com",
-    url="https://github.com/madedotcom/py-factorial",
+    url="https://github.com/madedotcom/dozen",
     packages=["dozen", "tests"],
 )
