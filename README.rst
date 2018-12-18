@@ -34,7 +34,7 @@ Sometimes we want to treat a value as optional, and give it a default value.
     >>> class DefaultConfig(dozen.Template):
     >>>     use_environment: bool = True
     >>>     some_string: str = "cheese"
-    >>>     some_possibly_empty_string: str = None
+    >>>     some_optional_string: str = None
     >>>     port: int = 73
     >>>
     >>> cfg = DefaultConfig.build(env=dict())
