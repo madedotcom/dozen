@@ -42,4 +42,27 @@ Sometimes we want to treat a value as optional, and give it a default value.
     >>> assert cfg.some_string == 'cheese'
     >>> assert cfg.port == 73
 
+For backing services, we often want to set addresses as env vars
+
+    >>> import dozen
+    >>> import os
+    >>>
+    >>> # Given some variables in the environment
+    >>> os.environ.update({
+    >>>     'MYAPP_WEB_HOST': 'app.example.org',
+    >>>     'MYAPP_WEB_PORT': '8080',
+    >>> })
+    >>>
+    >>> # ... and a template for our config
+    >>> class MyConfig(dozen.Template):
+    >>>     web: dozen.service()
+    >>>     api: dozen.service(default_host='api.example.org', default_port=9000)
+    >>>
+    >>> # dozen returns populated instances of our template from env vars
+    >>> cfg = MyConfig.build(prefix='myapp')
+    >>> assert cfg.web.host == 'app.example.org'
+    >>> assert cfg.web.port == 8080
+    >>> assert cfg.api.host == 'api.example.org'
+    >>> assert cfg.api.port == 9000
+
 
