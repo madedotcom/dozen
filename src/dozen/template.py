@@ -1,5 +1,4 @@
 import collections
-import inspect
 import sys
 import os
 
@@ -86,10 +85,9 @@ def service(default_port=None, default_host=None):
         host_var = env.get((name + "_host").upper())
         port_var = env.get((name + "_port").upper())
 
-        args[name] = service_instance(
-            host_var or default_host,
-            int(port_var or default_port),
-        )
+        args[name] = service_instance(host_var or default_host,
+                                      int(port_var or default_port))
+
     return _
 
 
@@ -99,7 +97,7 @@ def build(cls, env=None, prefix=""):
     if prefix and not prefix.endswith("_"):
         prefix += "_"
 
-    if env == None:
+    if env is None:
         env = os.environ
 
     args = {}
@@ -149,7 +147,6 @@ class TemplateMeta(type):
         ns["build"] = build
         ns["__inner_type"] = inner_type
 
-        fields = {}
         ns["__fields"] = dict(
             [(n, _READERS.get(t) or t) for n, t in types.items()])
         ns["__defaults"] = defaults_dict
@@ -191,37 +188,6 @@ class _TemplateMeta(type):
                 setattr(nm_tpl, key, ns[key])
 
         return nm_tpl
-
-
-class NamedTuple:
-    """Typed version of namedtuple.
-    Usage in Python versions >= 3.6::
-        class Employee(NamedTuple):
-            name: str
-            id: int
-    This is equivalent to::
-        Employee = collections.namedtuple('Employee', ['name', 'id'])
-    The resulting class has extra __annotations__ and _field_types
-    attributes, giving an ordered dict mapping field names to types.
-    __annotations__ should be preferred, while _field_types
-    is kept to maintain pre PEP 526 compatibility. (The field names
-    are in the _fields attribute, which is part of the namedtuple
-    API.) Alternative equivalent keyword syntax is also accepted::
-        Employee = NamedTuple('Employee', name=str, id=int)
-    In Python versions <= 3.5 use::
-        Employee = NamedTuple('Employee', [('name', str), ('id', int)])
-    """
-
-    _root = True
-
-    def __new__(self, typename, fields=None, **kwargs):
-        if fields is None:
-            fields = kwargs.items()
-        elif kwargs:
-            raise TypeError("Either list of fields or keywords"
-                            " can be provided to NamedTuple, not both")
-
-        return _make_nmtuple(typename, fields)
 
 
 class Template(metaclass=TemplateMeta):
