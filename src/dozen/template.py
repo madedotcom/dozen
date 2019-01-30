@@ -9,9 +9,11 @@ def _make_nmtuple(name, types):
     nm_tpl = collections.namedtuple(name, [n for n, t in types])
     # Prior to PEP 526, only _field_types attribute was assigned.
     # Now, both __annotations__ and _field_types are used to maintain compatibility.
-    nm_tpl.__annotations__ = nm_tpl._field_types = collections.OrderedDict(types)
+    nm_tpl.__annotations__ = nm_tpl._field_types = collections.OrderedDict(
+        types)
     try:
-        nm_tpl.__module__ = sys._getframe(2).f_globals.get("__name__", "__main__")
+        nm_tpl.__module__ = sys._getframe(2).f_globals.get(
+            "__name__", "__main__")
     except (AttributeError, ValueError):
         pass
 
@@ -59,6 +61,7 @@ def bool_from_str(val):
 def parse_if_present(f):
     def p(name, prefix, env, args):
         var = (prefix + name).upper()
+
         if var not in env:
             return
         val = env[var]
@@ -73,6 +76,20 @@ _READERS = {
     str: parse_if_present(str),
     bool: parse_if_present(bool_from_str),
 }
+
+service_instance = collections.namedtuple("_dozen_service_instance",
+                                          "host port")
+
+
+def service():
+    def _(name, prefix, env, args):
+        host_var = (name + "_host").upper()
+        port_var = (name + "_port").upper()
+        args[name] = service_instance(
+            env.get(host_var),
+            int(env.get(port_var))
+        )
+    return _
 
 
 @classmethod
@@ -89,8 +106,10 @@ def build(cls, env=None, prefix=""):
     for name, reader in cls.__fields.items():
 
         # I really want to be able to say "If this is a nested template"
+
         if hasattr(reader, "build"):
             val = reader.build(env=env, prefix=(name.upper() + "_" + prefix))
+
             if val is not None:
                 args[name] = val
 
@@ -100,8 +119,7 @@ def build(cls, env=None, prefix=""):
             except ValueError as e:
                 raise ValueError(
                     f"Error parsing '{name}' property of '{cls.__inner_type.__name__}':\n"
-                    + str(e)
-                )
+                    + str(e))
 
     for k in cls.__fields.keys():
         if k not in args:
@@ -126,14 +144,15 @@ class TemplateMeta(type):
             if field_name in ns:
                 default_value = ns[field_name]
                 defaults_dict[field_name] = default_value
- 
+
         ns["build"] = build
         ns["__inner_type"] = inner_type
 
         fields = {}
-        ns["__fields"] = dict([(n, _READERS.get(t) or t) for n, t in types.items()])
+        ns["__fields"] = dict(
+            [(n, _READERS.get(t) or t) for n, t in types.items()])
         ns["__defaults"] = defaults_dict
-        result = type(typename, (object,), ns)
+        result = type(typename, (object, ), ns)
 
         return result
 
@@ -157,8 +176,7 @@ class _TemplateMeta(type):
                     "follow default field(s) {default_names}".format(
                         field_name=field_name,
                         default_names=", ".join(defaults_dict.keys()),
-                    )
-                )
+                    ))
         nm_tpl.__new__.__annotations__ = collections.OrderedDict(types)
         nm_tpl.__new__.__defaults__ = tuple(defaults)
         nm_tpl._field_defaults = defaults_dict
@@ -166,7 +184,8 @@ class _TemplateMeta(type):
 
         for key in ns:
             if key in _prohibited:
-                raise AttributeError("Cannot overwrite NamedTuple attribute " + key)
+                raise AttributeError("Cannot overwrite NamedTuple attribute " +
+                                     key)
             elif key not in _special and key not in nm_tpl._fields:
                 setattr(nm_tpl, key, ns[key])
 
@@ -198,10 +217,8 @@ class NamedTuple:
         if fields is None:
             fields = kwargs.items()
         elif kwargs:
-            raise TypeError(
-                "Either list of fields or keywords"
-                " can be provided to NamedTuple, not both"
-            )
+            raise TypeError("Either list of fields or keywords"
+                            " can be provided to NamedTuple, not both")
 
         return _make_nmtuple(typename, fields)
 

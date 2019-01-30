@@ -133,3 +133,20 @@ class When_a_field_has_a_default_value:
 
     def it_should_override_default_with_env(self):
         expect(self.cfg.size).to(equal(10))
+
+
+class simple_service_template(dozen.Template):
+    db: dozen.service()
+
+
+class When_building_services_from_environment:
+    def because_we_load_the_template(self):
+        self.cfg = simple_service_template.build(
+            env={
+                "DB_HOST": "db.local",
+                "DB_PORT": "5432",
+            })
+
+    def it_should_build_the_service(self):
+        expect(self.cfg.db.host).to(equal("db.local"))
+        expect(self.cfg.db.port).to(equal(5432))
