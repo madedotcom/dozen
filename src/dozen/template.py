@@ -81,13 +81,14 @@ service_instance = collections.namedtuple("_dozen_service_instance",
                                           "host port")
 
 
-def service():
+def service(default_port=None, default_host=None):
     def _(name, prefix, env, args):
-        host_var = (name + "_host").upper()
-        port_var = (name + "_port").upper()
+        host_var = env.get((name + "_host").upper())
+        port_var = env.get((name + "_port").upper())
+
         args[name] = service_instance(
-            env.get(host_var),
-            int(env.get(port_var))
+            host_var or default_host,
+            int(port_var or default_port),
         )
     return _
 

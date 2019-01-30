@@ -5,18 +5,16 @@ name = "pypi"
 
 [packages]
 "./src" = "*"
-"b7287bc" = {path = "./src", editable = true}
-watchdog = "*"
+b7287bc = {path = "./src",editable = true}
 
 [dev-packages]
 black = "==18.6b4"
 neovim = "*"
 "zest.releaser" = {extras = ["recommended"]}
 setuptools-git = "*"
-contexts = "*"
-expects = "*"
 pytest-contexts = "*"
 pytest-watch = "*"
+expects = "*"
 
 [requires]
 python_version = "3.7"
